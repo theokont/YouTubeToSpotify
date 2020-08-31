@@ -17,7 +17,12 @@ public class Parser {
                 }
             }
             if (i > pointer && pointer != 0) {
-                code.append(link.charAt(i));
+                if (link.charAt(i) == '&') {
+                    break;
+                }
+                else {
+                    code.append(link.charAt(i));
+                }
             }
         }
         if (code.length() == 0) {
@@ -31,7 +36,6 @@ public class Parser {
     public String parseListID(String URL) {
         StringBuilder listID = new StringBuilder();
         int pointer = 0;
-        int idLength = 0; // listID length is fixed size at 34 characters
         for (int i = 0; i < URL.length(); i++) {
             if (URL.charAt(i) == '=') {
                 String subStr = URL.substring(i-4,i); // creates a substring of the 4 characters before '='
@@ -39,9 +43,13 @@ public class Parser {
                     pointer = i;
                 }
             }
-            if (i > pointer && pointer != 0 && idLength < 34) {
-                listID.append(URL.charAt(i));
-                idLength++;
+            if (i > pointer && pointer != 0) {
+                if (URL.charAt(i) == '&') {
+                    break;
+                }
+                else {
+                    listID.append(URL.charAt(i));
+                }
             }
         }
         if (listID.length() == 0) {
