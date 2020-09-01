@@ -134,7 +134,7 @@ public class Parser {
         reader.endObject();
     }
 
-    // methods readPlaylistsResponse, readPlaylistsItemsArray, appendPlaylists and readOwner are used
+    // methods readPlaylistsResponse, readPlaylistsItemsArray, appendPlaylists and checkOwner are used
     // in order to access the Json's hierarchical layers
 
     public Map<String,String> readPlaylistsResponse(String playlistsJson) throws IOException {
