@@ -193,7 +193,6 @@ public class Parser {
                 playlists.put(playlistName, playlistID);
                 playlistID = null;
                 playlistName = null;
-                continue;
             }
         }
         reader.endObject();
