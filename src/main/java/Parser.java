@@ -70,6 +70,9 @@ public class Parser {
         return userID;
     }
 
+    // methods readYoutubeResponse, readItemsArray, readItemsElements and readSnippet are used in order to
+    // access the Json's hierarchical layers
+
     public List<String> readYouTubeResponse(String jsonResponse) throws IOException {
 
         List<String> playlist = new ArrayList<>();
@@ -131,6 +134,9 @@ public class Parser {
         reader.endObject();
     }
 
+    // methods readPlaylistsResponse, readPlaylistsItemsArray, appendPlaylists and readOwner are used
+    // in order to access the Json's hierarchical layers
+
     public Map<String,String> readPlaylistsResponse(String playlistsJson) throws IOException {
 
         Map<String,String> playlists = new HashMap<>();
@@ -170,9 +176,9 @@ public class Parser {
         reader.beginObject();
         while(reader.hasNext()) {
             String name = reader.nextName();
-            // checks if the playlist belongs to the current user, if it doesn't it skips it
+            // checks if the playlist belongs to the current user
             if (name.equals("owner")) {
-                isOwner = readOwner(reader, isOwner, userID);
+                isOwner = checkOwner(reader, isOwner, userID);
             }
             else if (name.equals("id")) {
                 playlistID = reader.nextString();
@@ -193,7 +199,7 @@ public class Parser {
         reader.endObject();
     }
 
-    public Boolean readOwner(JsonReader reader, Boolean isOwner, String userID) throws IOException {
+    public Boolean checkOwner(JsonReader reader, Boolean isOwner, String userID) throws IOException {
         reader.beginObject();
         while (reader.hasNext()) {
             String ownerObjName = reader.nextName();
