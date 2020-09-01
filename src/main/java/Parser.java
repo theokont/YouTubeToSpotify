@@ -6,40 +6,14 @@ import java.util.*;
 public class Parser {
 
 
-    public String parseCallBackCode(String link) {
-        StringBuilder code = new StringBuilder();
-        int pointer = 0;
-        for (int i = 0; i < link.length(); i++) {
-            if (link.charAt(i) == '=') {
-                String subStr = link.substring(i-4,i);
-                if (subStr.equals("code")) {
-                    pointer = i;
-                }
-            }
-            if (i > pointer && pointer != 0) {
-                if (link.charAt(i) == '&') {
-                    break;
-                }
-                else {
-                    code.append(link.charAt(i));
-                }
-            }
-        }
-        if (code.length() == 0) {
-            throw new IllegalStateException("Something went wrong, URI didn't contain a code");
-        }
-        else {
-            return String.valueOf(code);
-        }
-    }
-
-    public String parseListID(String URL) {
-        StringBuilder listID = new StringBuilder();
+    public String getItem(String URL, String name) {
+        StringBuilder item = new StringBuilder();
         int pointer = 0;
         for (int i = 0; i < URL.length(); i++) {
             if (URL.charAt(i) == '=') {
-                String subStr = URL.substring(i-4,i); // creates a substring of the 4 characters before '='
-                if (subStr.equals("list")) {
+                // create a substring to check if the word before '=' is the desired item
+                String subStr = URL.substring(i-name.length(),i);
+                if (subStr.equals(name)) {
                     pointer = i;
                 }
             }
@@ -48,19 +22,38 @@ public class Parser {
                     break;
                 }
                 else {
-                    listID.append(URL.charAt(i));
+                    item.append(URL.charAt(i));
                 }
             }
         }
-        if (listID.length() == 0) {
-            throw new IllegalStateException("Something went wrong, URL didn't contain a list ID");
+        if (item.length() == 0) {
+            throw new IllegalStateException("Something went wrong, URI didn't contain " + item);
         }
         else {
-            return String.valueOf(listID);
+            return String.valueOf(item);
         }
     }
 
-    public ArrayList<String> readJsonResponse(String jsonResponse) throws IOException {
+    public String readAuthToken(String token, String item) throws IOException {
+
+        String value = null;
+        JsonReader reader = new JsonReader(new StringReader(token));
+        reader.beginObject();
+        while(reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals(item)) {
+                value = reader.nextString();
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return value;
+
+    }
+
+    public ArrayList<String> readYouTubeResponse(String jsonResponse) throws IOException {
 
         ArrayList<String> playlist = new ArrayList<>();
         JsonReader reader = new JsonReader(new StringReader(jsonResponse));
