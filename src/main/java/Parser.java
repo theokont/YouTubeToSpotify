@@ -53,9 +53,26 @@ public class Parser {
 
     }
 
-    public ArrayList<String> readYouTubeResponse(String jsonResponse) throws IOException {
+    public static String readUserID(String response) throws IOException {
+        JsonReader reader = new JsonReader(new StringReader(response));
+        String userID = null;
+        reader.beginObject();
+        while(reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("id")) {
+                userID = reader.nextString();
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return userID;
+    }
 
-        ArrayList<String> playlist = new ArrayList<>();
+    public List<String> readYouTubeResponse(String jsonResponse) throws IOException {
+
+        List<String> playlist = new ArrayList<>();
         JsonReader reader = new JsonReader(new StringReader(jsonResponse));
         reader.beginObject();
         while(reader.hasNext()) {
@@ -71,7 +88,7 @@ public class Parser {
         return playlist;
     }
 
-    public ArrayList<String> readItemsArray(JsonReader reader, ArrayList<String> playlist) throws IOException {
+    public List<String> readItemsArray(JsonReader reader, List<String> playlist) throws IOException {
 
         reader.beginArray();
         while (reader.hasNext()) {
@@ -81,7 +98,7 @@ public class Parser {
         return playlist;
     }
 
-    public ArrayList<String> readItemsElements(JsonReader reader, ArrayList<String> playlist) throws IOException {
+    public List<String> readItemsElements(JsonReader reader, List<String> playlist) throws IOException {
 
         reader.beginObject();
         while(reader.hasNext()) {
@@ -97,7 +114,7 @@ public class Parser {
         return playlist;
     }
 
-    public void readSnippet(JsonReader reader, ArrayList<String> playlist) throws IOException{
+    public void readSnippet(JsonReader reader, List<String> playlist) throws IOException{
 
         String title = null;
         reader.beginObject();
@@ -113,4 +130,108 @@ public class Parser {
         }
         reader.endObject();
     }
+
+    public Map<String,String> readPlaylistsResponse(String playlistsJson) throws IOException {
+
+        Map<String,String> playlists = new HashMap<>();
+        JsonReader reader = new JsonReader(new StringReader(playlistsJson));
+        reader.beginObject();
+        while(reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("items")) {
+                playlists = readPlaylistsItemsArray(reader, playlists);
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return playlists;
+    }
+
+    public Map<String,String> readPlaylistsItemsArray(JsonReader reader, Map<String,String> playlists) throws IOException {
+
+        reader.beginArray();
+        while(reader.hasNext()) {
+            appendPlaylists(reader, playlists);
+        }
+        reader.endArray();
+        return playlists;
+    }
+
+    public void appendPlaylists(JsonReader reader, Map<String,String> playlists) throws IOException {
+
+        SpotifyApi spotify = new SpotifyApi();
+        SpotifyAuth token = new SpotifyAuth();
+        String userID = spotify.getUserID(token.getAccessToken());
+        String playlistName = null;
+        String playlistID = null;
+        Boolean isOwner = false;
+        reader.beginObject();
+        while(reader.hasNext()) {
+            String name = reader.nextName();
+            // checks if the playlist belongs to the current user, if it doesn't it skips it
+            if (name.equals("owner")) {
+                isOwner = readOwner(reader, isOwner, userID);
+            }
+            else if (name.equals("id")) {
+                playlistID = reader.nextString();
+            }
+            else if (name.equals("name")) {
+                playlistName = reader.nextString();
+            }
+            else {
+                reader.skipValue();
+            }
+            if ( playlistID != null && playlistName != null && isOwner) {
+                playlists.put(playlistName, playlistID);
+                playlistID = null;
+                playlistName = null;
+                continue;
+            }
+        }
+        reader.endObject();
+    }
+
+    public Boolean readOwner(JsonReader reader, Boolean isOwner, String userID) throws IOException {
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String ownerObjName = reader.nextName();
+            if (ownerObjName.equals("id")) {
+                String id = reader.nextString();
+                if (id.equals(userID)) {
+                    isOwner = true;
+                }
+                else {
+                    isOwner = false;
+                }
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return isOwner;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
