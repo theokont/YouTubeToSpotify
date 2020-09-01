@@ -168,8 +168,7 @@ public class Parser {
     public void appendPlaylists(JsonReader reader, Map<String,String> playlists) throws IOException {
 
         SpotifyApi spotify = new SpotifyApi();
-        SpotifyAuth token = new SpotifyAuth();
-        String userID = spotify.getUserID(token.getAccessToken());
+        String userID = spotify.getUserID();
         String playlistName = null;
         String playlistID = null;
         Boolean isOwner = false;
