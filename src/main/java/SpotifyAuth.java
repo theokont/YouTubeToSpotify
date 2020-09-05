@@ -1,22 +1,43 @@
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import kong.unirest.Unirest;
 import java.awt.*;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
 
-public class SpotifyAuth {
+import picocli.CommandLine.Command;
+
+
+
+@Command
+public class SpotifyAuth implements Callable {
 
     private String authAPI;
     private String apiToken;
-    private String code;
+    private static String code;
     private static String accessToken;
+    private static String clientID = "f270b2403a6540fc8f654e75a5e4a6a2"; // add your own clientID
+    private static String clientSecret = "1a56c655f2f34822af4c4d1eb559bb32"; // add your own clientSecrets
+    private static ServerHandler handler;
 
     public SpotifyAuth() {
+        handler = new ServerHandler();
         authAPI = "https://accounts.spotify.com/authorize";
         apiToken = "https://accounts.spotify.com/api/token";
         code = null;
+    }
+
+    public Object call() throws IOException{
+        initiateAuth();
+        String aToken = getAccessToken();
+        System.out.println(aToken);
+        return null;
     }
 
     public static String generateState() {
@@ -62,8 +83,22 @@ public class SpotifyAuth {
         return response;
     }
 
+    public HttpServer initServer() throws IOException {
+        InetAddress adr = InetAddress.getByName("127.0.0.1");
+        HttpServer server = HttpServer.create(new InetSocketAddress(adr, 8080), 0);
+        server.createContext("/callback/", handler);
+        server.setExecutor(null); // default executor
+        server.start();
+        return server;
+    }
 
-    public String initiateAuth() throws IOException {
+    public void closeServer(HttpServer server) {
+        server.stop(0);
+    }
+
+    public void initiateAuth() throws IOException {
+
+        HttpServer server = initServer();
 
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = java.awt.Desktop.getDesktop();
@@ -81,22 +116,23 @@ public class SpotifyAuth {
             System.out.println("Copy the link above and paste it in your browser in order to proceed");
         }
 
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Please enter the URI in which you were redirected after agreeing to the terms: ");
-        String link = sc.nextLine();
         Parser parser = new Parser();
-        setCode(parser.getItem(link,"code"));
-        System.out.println("Please enter your Client ID and Client Secret found in your Spotify dashboard");
-        System.out.println("Client ID: ");
-        String clientID = sc.nextLine();
-        System.out.println("Client Secret: ");
-        String clientSecret = sc.nextLine();
-        sc.close();
+        while (!handler.setCode) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
-        String token = requestToken(getApiToken(),getCode(),clientID,clientSecret);
-        setAccessToken(parser.readAuthToken(token,"access_token"));
-        return getAccessToken();
+        if (handler.setCode) {
+            String token = requestToken(getApiToken(), getCode(), clientID, clientSecret);
+            setAccessToken(parser.readAuthToken(token, "access_token"));
+        }
+        else {
+            System.out.println("Something went wrong, access token is not set");
+        }
+        closeServer(server);
     }
 
     public String getAuthApi() {
