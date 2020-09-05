@@ -20,8 +20,8 @@ public class ServerHandler implements HttpHandler {
         auth = new SpotifyAuth();
         String url = exchange.getRequestURI().getQuery();
         String code = parser.getItem(url,"code");
-        setCode = true;
         auth.setCode(code);
+        setCode = true;
         String message = "Code has been received, you may close this tab";
         exchange.sendResponseHeaders(200, message.getBytes().length);
         OutputStream os = exchange.getResponseBody();
