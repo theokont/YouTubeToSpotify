@@ -125,6 +125,8 @@ public class SpotifyAuth implements Callable {
             }
         }
 
+        // if authentication code is retrieved, get spotify token in json as string
+        // and then parse it in order to get the access token
         if (handler.setCode) {
             String token = requestToken(getApiToken(), getCode(), clientID, clientSecret);
             setAccessToken(parser.readAuthToken(token, "access_token"));
