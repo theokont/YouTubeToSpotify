@@ -27,7 +27,6 @@ public class SpotifyApi {
                 .asString().getBody();
         Parser parser = new Parser();
         Map<String,String> playlists = parser.readPlaylistsResponse(response);
-        System.out.println(getAccessToken());
         return playlists;
     }
 
