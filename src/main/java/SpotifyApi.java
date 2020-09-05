@@ -10,7 +10,6 @@ public class SpotifyApi {
         token = new SpotifyAuth();
     }
 
-
     public String getUserID() throws IOException {
 
         String response = Unirest.get("https://api.spotify.com/v1/me")
@@ -27,7 +26,6 @@ public class SpotifyApi {
                 .asString().getBody();
         Parser parser = new Parser();
         Map<String,String> playlists = parser.readPlaylistsResponse(response);
-        System.out.println(getAccessToken());
         return playlists;
     }
 
