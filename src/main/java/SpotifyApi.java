@@ -2,14 +2,14 @@ import com.google.gson.JsonObject;
 import kong.unirest.Unirest;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 
 public class SpotifyApi {
 
-    private static SpotifyAuth token;
+    private static SpotifyAuth token  = new SpotifyAuth();
     private static Map<String,String> playlists;
 
     public SpotifyApi() {
-        token = new SpotifyAuth();
         playlists = null;
     }
 
@@ -24,6 +24,49 @@ public class SpotifyApi {
             }
         }
         return String.valueOf(encoded);
+    }
+
+    public static String generateState() {
+        String state = null;
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        int stringLength = 10;
+        Random random = new Random();
+        state = random.ints(stringLength, leftLimit, rightLimit +1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+        return state;
+    }
+
+    public String getRedirectUri(String authApi) {
+        String response = Unirest.get(authApi)
+                .queryString("client_id", "f270b2403a6540fc8f654e75a5e4a6a2")
+                .queryString("response_type", "code")
+                .queryString("redirect_uri", "http://127.0.0.1:8080/callback/")
+                .queryString("state", generateState())
+                .queryString("scope", SpotifyAuth.getScope())
+                .getUrl();
+        return response;
+    }
+
+    public String getToken(String apiToken, String code, String clientId, String clientSecret) {
+        String response = Unirest.post(apiToken)
+                .field("grant_type","authorization_code")
+                .field("code", code)
+                .field("redirect_uri","http://127.0.0.1:8080/callback/")
+                .field("client_id", clientId)
+                .field("client_secret", clientSecret)
+                .asString().getBody();
+        return response;
+    }
+
+    public String getRefreshToken(String apiToken, String code) {
+        String response = Unirest.post(apiToken)
+                .queryString("grant_type","refresh_token")
+                .queryString("refresh_token", code)
+                .asString().getBody();
+        return response;
     }
 
     public String getUserID() throws IOException {
