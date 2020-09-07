@@ -99,11 +99,12 @@ public class SpotifyApi {
                 .asString().getBody();
         setPlaylists();
         if (playlists.containsKey(playlistName)) {
-            System.out.println("> Playlist " + playlistName + "has been created successfully!");
+            System.out.println("> Playlist " + playlistName + " has been created successfully!");
         }
         else {
             System.out.println("Error, playlist hasn't been created");
         }
+        setPlaylists();
     }
 
     public Map<String,String> getPlaylists() throws IOException {
