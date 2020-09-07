@@ -22,8 +22,8 @@ public class SpotifyAuth implements Callable {
     private String apiToken;
     private static String code;
     private static String accessToken;
-    private static String clientID = "f270b2403a6540fc8f654e75a5e4a6a2"; // add your own clientID
-    private static String clientSecret = "1a56c655f2f34822af4c4d1eb559bb32"; // add your own clientSecrets
+    private static String clientID = "yourClientID"; // add your own clientID
+    private static String clientSecret = "yourClientSecret"; // add your own clientSecrets
     private static ServerHandler handler;
     private static String scope = "user-read-private%20playlist-read-private%20user-read-email%20" +
             "playlist-modify-public%20playlist-modify-private";
