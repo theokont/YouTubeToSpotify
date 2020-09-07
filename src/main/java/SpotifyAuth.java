@@ -25,6 +25,8 @@ public class SpotifyAuth implements Callable {
     private static String clientID = "f270b2403a6540fc8f654e75a5e4a6a2"; // add your own clientID
     private static String clientSecret = "1a56c655f2f34822af4c4d1eb559bb32"; // add your own clientSecrets
     private static ServerHandler handler;
+    private static String scope = "user-read-private%20playlist-read-private%20user-read-email%20" +
+            "playlist-modify-public%20playlist-modify-private";
 
     public SpotifyAuth() {
         handler = new ServerHandler();
@@ -59,7 +61,7 @@ public class SpotifyAuth implements Callable {
                 .queryString("response_type", "code")
                 .queryString("redirect_uri", "http://127.0.0.1:8080/callback/")
                 .queryString("state", generateState())
-                .queryString("scope", "user-read-private%20playlist-read-private%20user-read-email")
+                .queryString("scope", scope)
                 .getUrl();
         return response;
     }
@@ -116,7 +118,6 @@ public class SpotifyAuth implements Callable {
             System.out.println("Copy the link above and paste it in your browser in order to proceed");
         }
 
-        Parser parser = new Parser();
         while (!handler.setCode) {
             try {
                 Thread.sleep(500);
@@ -129,7 +130,7 @@ public class SpotifyAuth implements Callable {
         // and then parse it in order to get the access token
         if (handler.setCode) {
             String token = requestToken(getApiToken(), getCode(), clientID, clientSecret);
-            setAccessToken(parser.readAuthToken(token, "access_token"));
+            setAccessToken(Parser.readAuthToken(token, "access_token"));
         }
         else {
             System.out.println("Something went wrong, access token is not set");

@@ -5,8 +5,8 @@ import java.util.*;
 
 public class Parser {
 
-
-    public String getItem(String URL, String name) {
+    // parses the URL given and extracts the chosen item from it
+    public static String getItem(String URL, String name) {
         StringBuilder item = new StringBuilder();
         int pointer = 0;
         for (int i = 0; i < URL.length(); i++) {
@@ -34,7 +34,49 @@ public class Parser {
         }
     }
 
-    public String readAuthToken(String token, String item) throws IOException {
+    // takes a String and removes parentheses and brackets in it, along with their content
+    public static String removeExplanatory(String title) {
+        StringBuilder finalTitle = new StringBuilder();
+        boolean startParenthesis = false;
+        boolean startBracket = false;
+        for (int i = 0; i < title.length(); i++) {
+
+            if (title.charAt(i) == '(') {
+                startParenthesis = true;
+            }
+            else if (title.charAt(i) == ')') {
+                startParenthesis = false;
+                continue;
+            }
+            else if (title.charAt(i) == '[') {
+                startBracket = true;
+            }
+            else if (title.charAt(i) == ']') {
+                startBracket = false;
+                continue;
+            }
+
+            if (startBracket == false && startParenthesis == false) {
+                if (title.charAt(i) != ' ') {
+                    finalTitle.append(title.charAt(i));
+                }
+                // checks if there is already a space (' ') in the previous index to ensure single spaces
+                else {
+                    if ((finalTitle.length()-1) >= 0) {
+                        if (finalTitle.charAt(finalTitle.length()-1) != ' ') {
+                            finalTitle.append(title.charAt(i));
+                        }
+                        else if (finalTitle.charAt(finalTitle.length()-1) == ' ') {
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+        return String.valueOf(finalTitle);
+    }
+
+    public static String readAuthToken(String token, String item) throws IOException {
 
         String value = null;
         JsonReader reader = new JsonReader(new StringReader(token));
@@ -73,7 +115,7 @@ public class Parser {
     // methods readYoutubeResponse, readItemsArray, readItemsElements and readSnippet are used in order to
     // access the Json's hierarchical layers
 
-    public List<String> readYouTubeResponse(String jsonResponse) throws IOException {
+    public static List<String> readYouTubeResponse(String jsonResponse) throws IOException {
 
         List<String> playlist = new ArrayList<>();
         JsonReader reader = new JsonReader(new StringReader(jsonResponse));
@@ -91,7 +133,7 @@ public class Parser {
         return playlist;
     }
 
-    public List<String> readItemsArray(JsonReader reader, List<String> playlist) throws IOException {
+    public static List<String> readItemsArray(JsonReader reader, List<String> playlist) throws IOException {
 
         reader.beginArray();
         while (reader.hasNext()) {
@@ -101,7 +143,7 @@ public class Parser {
         return playlist;
     }
 
-    public List<String> readItemsElements(JsonReader reader, List<String> playlist) throws IOException {
+    public static List<String> readItemsElements(JsonReader reader, List<String> playlist) throws IOException {
 
         reader.beginObject();
         while(reader.hasNext()) {
@@ -117,7 +159,7 @@ public class Parser {
         return playlist;
     }
 
-    public void readSnippet(JsonReader reader, List<String> playlist) throws IOException{
+    public static void readSnippet(JsonReader reader, List<String> playlist) throws IOException{
 
         String title = null;
         reader.beginObject();
@@ -125,7 +167,7 @@ public class Parser {
             String name = reader.nextName();
             if (name.equals("title")) {
                 title = reader.nextString();
-                playlist.add(title);
+                playlist.add(removeExplanatory(title));
             }
             else {
                 reader.skipValue();
@@ -137,7 +179,7 @@ public class Parser {
     // methods readPlaylistsResponse, readPlaylistsItemsArray, appendPlaylists and checkOwner are used
     // in order to access the Json's hierarchical layers
 
-    public Map<String,String> readPlaylistsResponse(String playlistsJson) throws IOException {
+    public static Map<String,String> readPlaylistsResponse(String playlistsJson) throws IOException {
 
         Map<String,String> playlists = new HashMap<>();
         JsonReader reader = new JsonReader(new StringReader(playlistsJson));
@@ -155,7 +197,7 @@ public class Parser {
         return playlists;
     }
 
-    public Map<String,String> readPlaylistsItemsArray(JsonReader reader, Map<String,String> playlists) throws IOException {
+    public static Map<String,String> readPlaylistsItemsArray(JsonReader reader, Map<String,String> playlists) throws IOException {
 
         reader.beginArray();
         while(reader.hasNext()) {
@@ -165,7 +207,7 @@ public class Parser {
         return playlists;
     }
 
-    public void appendPlaylists(JsonReader reader, Map<String,String> playlists) throws IOException {
+    public static void appendPlaylists(JsonReader reader, Map<String,String> playlists) throws IOException {
 
         SpotifyApi spotify = new SpotifyApi();
         String userID = spotify.getUserID();
@@ -197,7 +239,7 @@ public class Parser {
         reader.endObject();
     }
 
-    public Boolean checkOwner(JsonReader reader, Boolean isOwner, String userID) throws IOException {
+    public static Boolean checkOwner(JsonReader reader, Boolean isOwner, String userID) throws IOException {
         reader.beginObject();
         while (reader.hasNext()) {
             String ownerObjName = reader.nextName();
@@ -217,6 +259,68 @@ public class Parser {
         reader.endObject();
         return isOwner;
     }
+
+    public static String readSearchResponse(String response) throws IOException {
+
+        JsonReader reader = new JsonReader(new StringReader(response));
+        String uri = null;
+        reader.beginObject();
+        while(reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("tracks")) {
+               uri = readTracks(reader, uri);
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return uri;
+    }
+
+    public static String readTracks(JsonReader reader, String uri) throws IOException {
+
+        reader.beginObject();
+        while(reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("items")) {
+                uri = readTrackItemsArray(reader, uri);
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        return uri;
+    }
+
+    public static String readTrackItemsArray(JsonReader reader, String uri) throws IOException {
+        reader.beginArray();
+        while (reader.hasNext()) {
+            uri = readTrackItemsElements(reader, uri);
+        }
+        reader.endArray();
+        return uri;
+    }
+
+    public static String readTrackItemsElements(JsonReader reader, String uri) throws IOException {
+
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("uri")) {
+                uri = reader.nextString();
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return uri;
+    }
+
+
+
+
 }
 
 
