@@ -45,13 +45,22 @@ public class PlaylistTransfer implements Runnable {
         }
 
         if (!spotify.getPlaylists().containsKey(spotifyPlaylist)) {
-            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173)The Spotify playlist that" +
+            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173) The Spotify playlist that" +
                     " you entered could not be found |@"));
             System.out.println("A new playlist with the name " + spotifyPlaylist + " is about to be created");
             spotify.createPlaylist(spotifyPlaylist);
         }
 
         spotify.addTracks(spotify.getPlaylists().get(spotifyPlaylist), String.valueOf(uris));
+        int succeeded = playlist.size()-failed.size();
+        if (succeeded != 0) {
+            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(40) Added " + succeeded + " tracks " +
+                    "successfully! |@"));
+        }
+        else {
+            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173) Something went wrong.." + '\n'+
+                    youtubeJson + " |@"));
+        }
         if (!failed.isEmpty()) {
             System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173) Unfortunately the following" +
                     " tracks could not be added: |@") + '\n');

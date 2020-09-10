@@ -16,7 +16,7 @@ public class SpotifyApi implements Runnable{
 
     private static SpotifyAuth token  = new SpotifyAuth();
     private static Map<String,String> playlists;
-    Properties config = new Properties();
+    Properties config;
 
 
     public SpotifyApi() {
