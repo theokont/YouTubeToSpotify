@@ -20,7 +20,7 @@ public class ServerHandler implements HttpHandler {
         String code = Parser.getItem(url,"code");
         auth.setCode(code);
         setCode = true;
-        String message = "Code has been received, you may close this tab";
+        String message = "Authentication is complete, you may close this tab";
         exchange.sendResponseHeaders(200, message.getBytes().length);
         OutputStream os = exchange.getResponseBody();
         os.write(message.getBytes());

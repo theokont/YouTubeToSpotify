@@ -39,6 +39,7 @@ public class Parser {
         StringBuilder finalTitle = new StringBuilder();
         boolean startParenthesis = false;
         boolean startBracket = false;
+        boolean verticalBarStart = false;
         for (int i = 0; i < title.length(); i++) {
 
             if (title.charAt(i) == '(') {
@@ -55,8 +56,11 @@ public class Parser {
                 startBracket = false;
                 continue;
             }
+            else if (title.charAt(i) == '|') {
+                verticalBarStart = true;
+            }
 
-            if (startBracket == false && startParenthesis == false) {
+            if (startBracket == false && startParenthesis == false && !verticalBarStart) {
                 if (title.charAt(i) != ' ') {
                     finalTitle.append(title.charAt(i));
                 }

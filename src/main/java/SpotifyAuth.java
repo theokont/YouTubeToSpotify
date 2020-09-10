@@ -5,36 +5,49 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.Callable;
+import java.util.Properties;
+
 import picocli.CommandLine.Command;
 
 
-@Command
-public class SpotifyAuth implements Callable {
+@Command(
+        name = "auth",
+        description = "Get the authorization access token"
+)
+public class SpotifyAuth implements Runnable {
 
     private String authAPI;
     private String apiToken;
     public SpotifyApi spotify = new SpotifyApi();
     private static String code;
-    private static String accessToken;
-    private static String clientID = ""; // add your own clientID
-    private static String clientSecret = ""; // add your own clientSecrets
-    private static ServerHandler handler;
+    private static String clientID;
+    private static String clientSecret;
+    private Properties config;
+    private static ServerHandler handler = new ServerHandler();
     private static String scope = "user-read-private%20playlist-read-private%20user-read-email%20" +
             "playlist-modify-public%20playlist-modify-private";
 
     public SpotifyAuth() {
-        handler = new ServerHandler();
         authAPI = "https://accounts.spotify.com/authorize";
         apiToken = "https://accounts.spotify.com/api/token";
         code = null;
+        try {
+            config = CredentialsLoader.loadCredentials();
+            clientID = config.getProperty("spotify.client.id");
+            clientSecret = config.getProperty("spotify.client.secret");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Object call() throws IOException{
-        initiateAuth();
-        String aToken = getAccessToken();
-        System.out.println(aToken);
-        return null;
+    public void run() {
+        try {
+            initiateAuth();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Authorization is successful!");
+        System.exit(0);
     }
 
     public HttpServer initServer() throws IOException {
@@ -90,6 +103,7 @@ public class SpotifyAuth implements Callable {
         closeServer(server);
     }
 
+
     public String getAuthApi() {
         return authAPI;
     }
@@ -110,11 +124,13 @@ public class SpotifyAuth implements Callable {
         return scope;
     }
 
-    public String getAccessToken() {
-        return this.accessToken;
+    public String getAccessToken() throws IOException {
+//        Properties config = CredentialsLoader.loadCredentials();
+        return config.getProperty("spotify.auth.token");
     }
 
     public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+        Credentials.store(accessToken);
+//        this.accessToken = accessToken;
     }
 }

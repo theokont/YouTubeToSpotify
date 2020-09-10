@@ -1,16 +1,31 @@
 import com.google.gson.JsonObject;
 import kong.unirest.Unirest;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Help.Ansi;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 
-public class SpotifyApi {
+
+@Command (
+        name = "playlists",
+        description = "Returns user's Spotify owned playlists"
+)
+public class SpotifyApi implements Runnable{
 
     private static SpotifyAuth token  = new SpotifyAuth();
     private static Map<String,String> playlists;
+    Properties config = new Properties();
+
 
     public SpotifyApi() {
         playlists = null;
+        try {
+            config = CredentialsLoader.loadCredentials();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String encodeSpaces(String title) {
@@ -99,7 +114,8 @@ public class SpotifyApi {
                 .asString().getBody();
         setPlaylists();
         if (playlists.containsKey(playlistName)) {
-            System.out.println("> Playlist " + playlistName + " has been created successfully!");
+            System.out.println(picocli.CommandLine.Help.Ansi.ON.string("@|fg(40) Playlist " +
+                    playlistName + " has been created successfully!|@" + '\n'));
         }
         else {
             System.out.println("Error, playlist hasn't been created");
@@ -114,7 +130,7 @@ public class SpotifyApi {
         return this.playlists;
     }
 
-    public String searchTrack(String title) {
+    public String searchTrack(String title) throws IOException {
         String search = Unirest.get("https://api.spotify.com/v1/search")
                 .header("Authorization", "Bearer " + getAccessToken())
                 .queryString("q", title)
@@ -124,7 +140,7 @@ public class SpotifyApi {
         return search;
     }
 
-    public void addTracks(String playlistID, String uris) {
+    public void addTracks(String playlistID, String uris) throws IOException {
         String response = Unirest.post("https://api.spotify.com/v1/playlists/" + playlistID + "/tracks")
                 .header("Authorization", "Bearer " + getAccessToken())
                 .header("Content-Type", "application/json")
@@ -132,7 +148,23 @@ public class SpotifyApi {
                 .asString().getBody();
     }
 
-    public String getAccessToken() {
-        return token.getAccessToken();
+    public String getAccessToken() throws IOException {
+        return config.getProperty("spotify.auth.token");
+    }
+
+    @Override
+    public void run() {
+        try {
+            Map<String,String> pl = getPlaylists();
+
+            System.out.println('\n' +"Spotify playlists that you own: " + '\n');
+
+            for (String playlist : pl.keySet()) {
+
+                System.out.println(Ansi.ON.string("@|fg(185) "+ playlist +" |@"));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

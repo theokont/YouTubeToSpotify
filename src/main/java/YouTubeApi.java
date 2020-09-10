@@ -1,11 +1,25 @@
 import kong.unirest.Unirest;
 
+import java.io.IOException;
+import java.util.Properties;
+
 public class YouTubeApi {
+    private Properties config;
+    private String apiKey = "AIzaSyB1FTDHOp6BcklsUl8L3dE4SE3byd-0of8";
+
+    public YouTubeApi() {
+        try {
+            config = CredentialsLoader.loadCredentials();
+            apiKey = config.getProperty("youtube.api.key");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     public String requestPlaylistItems(String playlistID) {
         String response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems")
-                .queryString("key", "AIzaSyBpAe6_QZMpqLk7tCjBD6oN5_LTsgUJnmg")
+                .queryString("key", apiKey)
                 .queryString("part", "snippet")
                 .queryString("playlistId", playlistID)
                 .queryString("maxResults", 50)

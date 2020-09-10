@@ -1,3 +1,4 @@
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 import java.io.IOException;
@@ -44,14 +45,16 @@ public class PlaylistTransfer implements Runnable {
         }
 
         if (!spotify.getPlaylists().containsKey(spotifyPlaylist)) {
-            System.out.println("The Spotify playlist that you entered could not be found");
-            System.out.println("A new playlist with the name " + spotifyPlaylist + " has been created!");
+            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173)The Spotify playlist that" +
+                    " you entered could not be found |@"));
+            System.out.println("A new playlist with the name " + spotifyPlaylist + " is about to be created");
             spotify.createPlaylist(spotifyPlaylist);
         }
 
         spotify.addTracks(spotify.getPlaylists().get(spotifyPlaylist), String.valueOf(uris));
         if (!failed.isEmpty()) {
-            System.out.println("Unfortunately the following tracks could not be added: " + '\n');
+            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173) Unfortunately the following" +
+                    " tracks could not be added: |@") + '\n');
             System.out.println(failed.toString());
         }
     }
