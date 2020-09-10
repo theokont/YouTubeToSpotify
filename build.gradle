@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'application'
+//    id "com.palantir.graal" version "0.7.1-20-g113a84d"
+}
+
+version '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClassName = 'Application'
+}
+
+dependencies {
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    implementation  group: 'com.konghq', name: 'unirest-java', version: '3.7.02'
+    implementation 'com.google.code.gson:gson:2.8.6'
+}
