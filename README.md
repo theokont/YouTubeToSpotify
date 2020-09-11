@@ -35,7 +35,7 @@ in our .properties file. To do so run the following commands:
   
 ## Authorization  
   
-By running the command gradlew run --args="auth" we get an authorization token that lasts for 1 hour.  
+By running the command `gradlew run --args="auth"` we get an authorization token that lasts for 1 hour.  
 That basically means that you have to use this command every time you want to use this app for the next hour.  
   
 ## Transfer a playlist  
