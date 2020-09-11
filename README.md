@@ -26,7 +26,7 @@ For the first time only run this command:
    
 `gradlew build`  
  
-After that we are almost ready! We need to store the ClientID,Client Secret and Youtube Api key  
+After that we are almost ready! We need to store the ClientID, Client Secret and Youtube Api key  
 in our .properties file. To do so run the following commands:  
 
 `gradlew run --args="credentials id YOUR_CLIENT_ID"`  
