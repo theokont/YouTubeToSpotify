@@ -18,6 +18,9 @@ Go to https://console.developers.google.com/apis/api/youtube.googleapis.com/cred
 
 ## Setup  
 
+Firstly, you need to have gradle installed. If you dont have it in your system then check this first:  
+https://docs.gradle.org/current/userguide/installation.html  
+
 Clone this repo and open a terminal window to the project's folder  
 For the first time only run this command: gradlew build  
 After that we are almost ready! We need to store the ClientID,Client Secret and Youtube Api key  
