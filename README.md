@@ -1,6 +1,6 @@
 # YouTubeToSpotify
 
-A command line application that allows the user to replicate the contents of a personal Youtube playlist to another playlist (new or existing) in his Spotify account.
+A command line application that allows the user to replicate the contents of a Youtube playlist to another playlist (new or existing) in his Spotify account.
 
 --- 
 
@@ -44,7 +44,7 @@ In order to transfer a playlist you need to run:
   
 `gradlew run --args="transfer URL PLAYLIST"`  
   
-where URL is the youtube URL of your YouTube playlist and PLAYLIST the name of your  
+where URL is the youtube URL of the YouTube playlist and PLAYLIST the name of your  
 Spotify playlist (new or existing) that you want to add the songs to.  
   
 ## Get Playlists  

@@ -115,7 +115,7 @@ public class SpotifyApi implements Runnable{
         setPlaylists();
         if (playlists.containsKey(playlistName)) {
             System.out.println(picocli.CommandLine.Help.Ansi.ON.string("@|fg(40) Playlist " +
-                    playlistName + " has been created successfully!|@" + '\n'));
+                    playlistName + " has been created! |@"));
         }
         else {
             System.out.println("Error, playlist hasn't been created");
