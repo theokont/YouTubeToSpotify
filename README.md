@@ -53,4 +53,6 @@ Spotify playlist (new or existing) that you want to add the songs to.
   
 ## --help  
   
-`gradlew run --args="-h"` or `gradlew run --args="--help"` : Shows help message
+`gradlew run --args="-h"` or `gradlew run --args="--help"` : Shows help message  
+  
+Licensed under the [MIT License](LICENSE).
