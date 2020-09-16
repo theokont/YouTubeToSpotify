@@ -1,6 +1,6 @@
 # YouTubeToSpotify
 
-A command line application that allows the user to replicate the contents of a Youtube playlist to another playlist (new or existing) in his Spotify account.
+A command line application that allows the user to replicate the contents of a Youtube playlist to another playlist (new or existing) in their Spotify account.
 
 --- 
 
@@ -18,7 +18,7 @@ Go to https://console.developers.google.com/apis/api/youtube.googleapis.com/cred
 
 ## Setup  
 
-Firstly, you need to have gradle installed. If you dont have it in your system then check this first:  
+Initially, you need to have gradle installed. If you dont have it in your system then check this first:  
 https://docs.gradle.org/current/userguide/installation.html  
 
 Clone this repo and open a terminal window to the project's folder  
