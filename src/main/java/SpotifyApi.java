@@ -54,9 +54,9 @@ public class SpotifyApi implements Runnable{
         return state;
     }
 
-    public String getRedirectUri(String authApi) {
+    public String getRedirectUri(String authApi, String clientID) {
         String response = Unirest.get(authApi)
-                .queryString("client_id", "f270b2403a6540fc8f654e75a5e4a6a2")
+                .queryString("client_id", clientID)
                 .queryString("response_type", "code")
                 .queryString("redirect_uri", "http://127.0.0.1:8080/callback/")
                 .queryString("state", generateState())

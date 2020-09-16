@@ -95,6 +95,9 @@ public class Parser {
             }
         }
         reader.endObject();
+        if (value == null) {
+            throw new IllegalStateException("Token" + item + "was not retrieved");
+        }
         return value;
 
     }

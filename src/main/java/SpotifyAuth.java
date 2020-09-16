@@ -71,7 +71,7 @@ public class SpotifyAuth implements Runnable {
             Desktop desktop = java.awt.Desktop.getDesktop();
             try {
 
-                URI objectURI = new URI(spotify.getRedirectUri(getAuthApi()));
+                URI objectURI = new URI(spotify.getRedirectUri(getAuthApi(), clientID));
                 desktop.browse(objectURI);
             } catch (URISyntaxException | IOException e) {
                 e.printStackTrace();
@@ -79,7 +79,7 @@ public class SpotifyAuth implements Runnable {
         }
         else {
             System.out.println("Unfortunately your browser can not open the following link automatically: "
-                    + "\n" + spotify.getRedirectUri(getAuthApi()));
+                    + "\n" + spotify.getRedirectUri(getAuthApi(), clientID));
             System.out.println("Copy the link above and paste it in your browser in order to proceed");
         }
 
