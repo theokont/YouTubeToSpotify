@@ -9,11 +9,12 @@ A command line application that allows the user to replicate the contents of a Y
 In order to use the Spotify and Youtube APIs we need the following:
 
 1.**Spotify**: ClientID, Client Secret  
-Go to https://developer.spotify.com/dashboard/login and create a new app  
-After agreeing to the terms you will have access to the application's Client ID and Client Secret
+Go to https://developer.spotify.com/dashboard/login and create a new app.    
+After agreeing to the terms you will have to go to **EDIT SETTINGS** and add `http://127.0.0.1:8080/callback/` in  
+**Redirect URIs**. Now you are set and have access to the application's Client ID and Client Secret.
 
 2.**Youtube**: Api key  
-Go to https://console.developers.google.com/apis/api/youtube.googleapis.com/credentials and click on  
+Go to https://console.developers.google.com/apis/api/youtube.googleapis.com/credentials and create a new application. Then, click on:  
 **Create Credentials** -> **Api Key**  
 
 ## Setup  
