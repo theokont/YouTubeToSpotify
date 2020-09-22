@@ -5,7 +5,7 @@ import java.util.Properties;
 
 public class YouTubeApi {
     private Properties config;
-    private String apiKey = "";
+    private String apiKey;
 
     public YouTubeApi() {
         try {
