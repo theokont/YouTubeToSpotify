@@ -1,8 +1,11 @@
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import kong.unirest.Unirest;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Ansi;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -145,6 +148,19 @@ public class SpotifyApi implements Runnable{
                 .header("Authorization", "Bearer " + getAccessToken())
                 .header("Content-Type", "application/json")
                 .queryString("uris", uris)
+                .asString().getBody();
+    }
+
+    public void addTracks(String playlistID, List<String> tracks) throws IOException {
+        JsonObject data = new JsonObject();
+        JsonArray playlistJsonArray = new Gson().toJsonTree(tracks).getAsJsonArray();
+        data.add("uris", playlistJsonArray);
+
+
+        String response = Unirest.post("https://api.spotify.com/v1/playlists/" + playlistID + "/tracks")
+                .header("Authorization", "Bearer " + getAccessToken())
+                .header("Content-Type", "application/json")
+                .body(data)
                 .asString().getBody();
     }
 

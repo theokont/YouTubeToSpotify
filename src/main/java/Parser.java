@@ -123,13 +123,17 @@ public class Parser {
     // access the Json's hierarchical layers
 
     public static List<String> readYouTubeResponse(String jsonResponse) throws IOException {
-
+        YouTubeApi youtube = new YouTubeApi();
         List<String> playlist = new ArrayList<>();
         JsonReader reader = new JsonReader(new StringReader(jsonResponse));
         reader.beginObject();
         while(reader.hasNext()) {
             String name = reader.nextName();
-            if (name.equals("items")) {
+            if (name.equals("nextPageToken")) {
+                youtube.setNextPageToken(reader.nextString());
+                youtube.setPageTokenSet(true);
+            }
+            else if (name.equals("items")) {
                 playlist = readItemsArray(reader, playlist);
             }
             else {
@@ -139,6 +143,29 @@ public class Parser {
         reader.endObject();
         return playlist;
     }
+
+    public static List<String> readYouTubeResponse(String jsonResponse, List<String> playlist) throws IOException {
+        YouTubeApi youtube = new YouTubeApi();
+        JsonReader reader = new JsonReader(new StringReader(jsonResponse));
+        reader.beginObject();
+        while(reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("nextPageToken")) {
+                youtube.setNextPageToken(reader.nextString());
+                youtube.setPageTokenSet(true);
+            }
+            else if (name.equals("items")) {
+                playlist = readItemsArray(reader, playlist);
+            }
+            else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return playlist;
+    }
+
+
 
     public static List<String> readItemsArray(JsonReader reader, List<String> playlist) throws IOException {
 

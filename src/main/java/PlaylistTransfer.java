@@ -14,7 +14,6 @@ public class PlaylistTransfer implements Runnable {
     SpotifyApi spotify = new SpotifyApi();
     YouTubeApi youtube = new YouTubeApi();
     List<String> IDs = new ArrayList<>();
-    StringBuilder uris = new StringBuilder();
     List<String> failed = new ArrayList<>();
 
     @Parameters (index = "0", description = "The url that contains the Youtube playlist to be transferred")
@@ -25,19 +24,17 @@ public class PlaylistTransfer implements Runnable {
 
     public void transfer(String youtubeUrl, String spotifyPlaylist) throws IOException {
         String youtubeJson = youtube.requestPlaylistItems(Parser.getItem(youtubeUrl, "list"));
-        List<String> playlist = Parser.readYouTubeResponse(youtubeJson);
+        List<String> playlist = youtube.retrievePlaylist(youtubeUrl, youtubeJson);
         System.out.println("Please wait..");
+
+        if (playlist.size() == 0) {
+            throw new IllegalStateException("Error: Playlist is empty");
+        }
 
         // appends on uris StringBuilder every track ID found. Failed searches are added in failed list
         for (int i = 0; i < playlist.size(); i++) {
             if (Parser.readSearchResponse(spotify.searchTrack(playlist.get(i))) != null) {
                 IDs.add(Parser.readSearchResponse(spotify.searchTrack(playlist.get(i))));
-                if (uris.length() == 0) {
-                    uris.append(Parser.readSearchResponse(spotify.searchTrack(playlist.get(i))));
-                }
-                else {
-                    uris.append(","+ Parser.readSearchResponse(spotify.searchTrack(playlist.get(i))));
-                }
             }
             else {
                 failed.add(playlist.get(i));
@@ -51,15 +48,40 @@ public class PlaylistTransfer implements Runnable {
             spotify.createPlaylist(spotifyPlaylist);
         }
 
-        spotify.addTracks(spotify.getPlaylists().get(spotifyPlaylist), String.valueOf(uris));
+        // Add the tracks in the Spotify playlist
+        if (IDs.size() <= 100) {
+            spotify.addTracks(spotify.getPlaylists().get(spotifyPlaylist), IDs);
+        }
+        else {
+            int times;
+            if (IDs.size()%100 == 0) {
+                times = IDs.size() / 100;
+            }
+            else {
+                times = (IDs.size()/100) + 1;
+            }
+            List<String> temp;
+            for (int i = 1; i <= times; i++) {
+                int from = (i-1) * 100;
+                if (i < times) {
+                    int to = (i * 100); // exclusive high endpoint
+                    temp = IDs.subList(from, to);
+                }
+                else {
+                    temp = IDs.subList(from, IDs.size());
+                }
+                spotify.addTracks(spotify.getPlaylists().get(spotifyPlaylist), temp);
+            }
+        }
+
         int succeeded = playlist.size()-failed.size();
         if (succeeded != 0) {
             System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(40) Added " + succeeded + " tracks " +
                     "successfully! |@"));
         }
         else {
-            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173) Something went wrong.." + '\n'+
-                    youtubeJson + " |@"));
+            System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173) Something went wrong.." + '\n'
+                   + youtubeJson  + " |@"));
         }
         if (!failed.isEmpty()) {
             System.out.println(CommandLine.Help.Ansi.ON.string("@|fg(173) Unfortunately the following" +
