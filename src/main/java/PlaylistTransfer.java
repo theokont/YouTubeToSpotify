@@ -17,7 +17,7 @@ public class PlaylistTransfer implements Runnable {
     StringBuilder uris = new StringBuilder();
     List<String> failed = new ArrayList<>();
 
-    @Parameters (index = "0", description = "The url that contains the Youtube playlist to be transfered")
+    @Parameters (index = "0", description = "The url that contains the Youtube playlist to be transferred")
     String youtubeUrl;
 
     @Parameters (index = "1", description = "The Spotify playlist in which the tracks are going to be added")
